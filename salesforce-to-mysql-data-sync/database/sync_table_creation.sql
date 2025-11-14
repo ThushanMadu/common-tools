@@ -1,4 +1,4 @@
--- Salesforce Sync Database and Tables Creation Script
+-- Salesforce Sync Database and Tables Creation Script.
 
 DROP DATABASE IF EXISTS `salesforce_sync`;
 CREATE DATABASE IF NOT EXISTS `salesforce_sync`;

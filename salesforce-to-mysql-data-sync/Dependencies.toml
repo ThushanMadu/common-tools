@@ -394,9 +394,9 @@ modules = [
 ]
 
 [[package]]
-org = "wso2digiops"
+org = "wso2"
 name = "salesforce_sync"
-version = "2.0.5"
+version = "1.0.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "log"},
@@ -408,6 +408,6 @@ dependencies = [
 	{org = "ballerinax", name = "salesforce"}
 ]
 modules = [
-	{org = "wso2digiops", packageName = "salesforce_sync", moduleName = "salesforce_sync"}
+	{org = "wso2", packageName = "salesforce_sync", moduleName = "salesforce_sync"}
 ]
 
