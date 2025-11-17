@@ -56,7 +56,7 @@ export enum ThemeMode {
 }
 
 export interface PreLoaderProps {
-  message: string | null;
+  message?: string;
   hideLogo?: boolean;
   isLoading?: boolean;
 }

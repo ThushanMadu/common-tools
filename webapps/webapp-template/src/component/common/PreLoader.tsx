@@ -24,6 +24,7 @@ import LoadingLogo from "@assets/images/loading.svg";
 import Wso2Logo from "@assets/images/wso2-logo.svg";
 import StateWithImage from "@component/ui/StateWithImage";
 import { APP_NAME } from "@config/config";
+import { PreLoaderProps } from "@utils/types";
 
 function CustomCircularProgress(props: CircularProgressProps) {
   return (
@@ -56,12 +57,6 @@ function CustomCircularProgress(props: CircularProgressProps) {
       />
     </Box>
   );
-}
-
-interface PreLoaderProps {
-  message?: string;
-  hideLogo?: boolean;
-  isLoading?: boolean;
 }
 
 const PreLoader = (props: PreLoaderProps) => {
