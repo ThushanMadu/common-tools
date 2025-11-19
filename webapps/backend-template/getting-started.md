@@ -38,7 +38,7 @@
 
 # Database Configurations.
 [sample_app.database]
-    connectTimeout = <Connection timeout in: 10.0>
+    connectTimeout = <Connection timeout: 10.0>
 [sample_app.database.databaseConfig]
     host = "<Database host>"
     user = "<Database user name>"
