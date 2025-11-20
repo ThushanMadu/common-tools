@@ -204,7 +204,7 @@ function dbPrepareInitQuery(any[] records) returns sql:ParameterizedQuery|error 
     if records is SFOpportunitySyncRecord[] {
         return `UPDATE sf_opportunity SET IsInSF = 0`;
     }
-    return error(string `Invalid records type: [dbInsertQuery()] Batch SQL query for passed in record type`
+    return error(string `Invalid records type: [dbInsertQuery()] SQL query for passed in record type`
         + string `(${(typeof records).toString()}) not defined.`);
 }
 
