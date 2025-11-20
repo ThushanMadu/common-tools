@@ -118,7 +118,7 @@ type SFOpportunitySyncRecord record {
     string CloseDate;
     # Opportunity stage
     string StageName;
-    # Confidence level
+    # Owner record.
     record {
         # Owner Email
         string Email;
