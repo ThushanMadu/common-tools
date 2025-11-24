@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import { Avatar, Box, Menu, MenuItem, Stack, Tooltip, useTheme } from "@mui/material";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -52,6 +51,8 @@ const Header = () => {
         variant="dense"
         sx={{
           paddingY: 0.3,
+          display: "flex",
+          gap: .5,
           "&.MuiToolbar-root": {
             pl: 0.3,
           },
@@ -71,7 +72,7 @@ const Header = () => {
           sx={{
             display: "flex",
             flexDirection: "row",
-            gap: theme.spacing(1),
+            gap: theme.spacing(.5),
             width: "100%",
             alignItems: "center",
             height: "100%",
@@ -91,11 +92,13 @@ const Header = () => {
         <Box sx={{ flexGrow: 0 }}>
           {user.userInfo && (
             <>
-              <Stack flexDirection={"row"} alignItems={"center"} gap={2}>
+              <Stack flexDirection={"row"} alignItems={"center"} gap={1}>
                 <Tooltip title="Open settings">
                   <Avatar
                     onClick={handleOpenUserMenu}
                     sx={{
+                      width: 48,
+                      height: 48,
                       border: 1,
                       borderColor: theme.palette.customBorder.territory.active,
                     }}

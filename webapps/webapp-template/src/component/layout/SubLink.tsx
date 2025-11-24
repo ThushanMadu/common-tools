@@ -13,11 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import { Box, Typography, useTheme } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
-
 import { Link, matchPath, useLocation } from "react-router-dom";
+
 import React from "react";
 
 interface SubLinkProps {
@@ -46,15 +45,18 @@ const SubLink = (props: SubLinkProps) => {
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: theme.spacing(1),
-            padding: theme.spacing(1),
+            gap: 1,
+            paddingX: "8px",
+            paddingY: "8px",
             borderRadius: "8px",
             justifyContent: "flex-start",
             textDecoration: "none",
-            color: isActive ? theme.palette.navigation.clicked : theme.palette.navigation.link,
+            color: isActive ? "customNavigation.textClicked" : "customNavigation.text",
             "&:hover": {
-              backgroundColor: theme.palette.navigation.hoverBg,
-              color: theme.palette.navigation.hover,
+              ...(!isActive && {
+                backgroundColor: "customNavigation.hoverBg",
+                color: "customNavigation.hover",
+              }),
             },
           }}
         >
@@ -121,8 +123,8 @@ const SubLink = (props: SubLinkProps) => {
                   width: "20px",
                   height: "20px",
                   color: isActive
-                    ? theme.palette.navigation.clicked
-                    : theme.palette.navigation.link,
+                    ? theme.palette.customNavigation.textClicked
+                    : theme.palette.customNavigation.text,
                 },
               })}
             </Tooltip>

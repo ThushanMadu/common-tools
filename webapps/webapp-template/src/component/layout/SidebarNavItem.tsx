@@ -13,13 +13,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
-import Tooltip from "@mui/material/Tooltip";
 import { Box, useTheme } from "@mui/material";
-
+import Tooltip from "@mui/material/Tooltip";
 import { Link } from "react-router-dom";
 
 import { RouteDetail } from "@/types/types";
+
 import LinkItem from "./LinkItem";
 import SidebarSubMenu from "./SidebarSubMenu";
 
@@ -45,6 +44,9 @@ function SidebarNavItem({
       sx={{
         position: "relative",
         transition: "box-shadow 0.2s",
+        display: "flex",
+        flexDirection: "column",
+        gap: 1,
         width: "100%",
       }}
     >
@@ -61,7 +63,7 @@ function SidebarNavItem({
               color: theme.palette.neutral.white,
               padding: theme.spacing(0.75, 1.5),
               borderRadius: "4px",
-              fontSize: "14px",
+              fontSize: "12px",
               boxShadow: theme.shadows[8],
             },
           },
@@ -72,45 +74,47 @@ function SidebarNavItem({
           },
         }}
       >
-        <Box sx={{ width: "100%" }}>
-          {route.element ? (
-            <Link to={route.path} style={{ width: "100%", display: "block", textDecoration: "none" }} onClick={onClick}>
-              <LinkItem
-                label={route.text}
-                icon={route.icon}
-                open={open}
-                isActive={isActive}
-                isHovered={isHovered}
-                isExpanded={isExpanded}
-                hasChildren={!!(route.children && route.children.length > 0)}
-                route={route}
-              />
-            </Link>
-          ) : (
-            <Box
-              component="button"
-              sx={{
-                width: "100%",
-                cursor: "pointer",
-                border: "none",
-                background: "none",
-                padding: 0,
-              }}
-              onClick={onClick}
-            >
-              <LinkItem
-                label={route.text}
-                icon={route.icon}
-                open={open}
-                isActive={isActive}
-                isHovered={isHovered}
-                isExpanded={isExpanded}
-                hasChildren={!!(route.children && route.children.length > 0)}
-                route={route}
-              />
-            </Box>
-          )}
-        </Box>
+        {route.element ? (
+          <Link
+            to={route.path}
+            style={{ width: "100%", display: "block", textDecoration: "none" }}
+            onClick={onClick}
+          >
+            <LinkItem
+              label={route.text}
+              icon={route.icon}
+              open={open}
+              isActive={isActive}
+              isHovered={isHovered}
+              isExpanded={isExpanded}
+              hasChildren={!!(route.children && route.children.length > 0)}
+              route={route}
+            />
+          </Link>
+        ) : (
+          <Box
+            component="button"
+            sx={{
+              width: "100%",
+              cursor: "pointer",
+              border: "none",
+              background: "none",
+              padding: 0,
+            }}
+            onClick={onClick}
+          >
+            <LinkItem
+              label={route.text}
+              icon={route.icon}
+              open={open}
+              isActive={isActive}
+              isHovered={isHovered}
+              isExpanded={isExpanded}
+              hasChildren={!!(route.children && route.children.length > 0)}
+              route={route}
+            />
+          </Box>
+        )}
       </Tooltip>
 
       {/* Render expanded children, outside the Tooltip */}
@@ -124,24 +128,11 @@ function SidebarNavItem({
             alignItems: "center",
             justifyContent: "center",
             marginLeft: open ? theme.spacing(2.5) : 0,
+            borderLeft: open ? `1px solid ${theme.palette.neutral["1000"]}` : "none",
+            paddingX: "8px",
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: theme.spacing(1),
-              width: "100%",
-              alignItems: "center",
-              justifyContent: "center",
-              borderLeft: open ? `1px solid ${theme.palette.neutral[50]}` : "none",
-              paddingTop: 1,
-              paddingLeft: open ? theme.spacing(1) : "9px",
-              mt: "4px"
-            }}
-          >
-            <SidebarSubMenu parentRoute={route} open={open} />
-          </Box>
+          <SidebarSubMenu parentRoute={route} open={open} />
         </Box>
       )}
     </Box>

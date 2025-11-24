@@ -14,12 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function DemoTabTwo(){
-  return(
+export default function NestedPage() {
+  return (
     <div>
-      <h1>Demo Tab Two</h1>
+      <div>Page Two</div>
     </div>
-  )
+  );
 }
-
-export default DemoTabTwo;

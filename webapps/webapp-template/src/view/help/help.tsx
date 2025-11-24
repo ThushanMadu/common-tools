@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import HelpIcon from "@mui/icons-material/Help";
 import TabsPage from "@root/src/layout/pages/TabsPage";
 import UserGuide from "@view/help/panel/userGuide";
 import MenuBookIcon from "@mui/icons-material/MenuBook";

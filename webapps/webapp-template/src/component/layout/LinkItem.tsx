@@ -13,12 +13,13 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
-import { RouteDetail } from "@root/src/types/types";
+import { Box, Typography, useTheme } from "@mui/material";
 import { ChevronDown as ChevronDownIcon } from "lucide-react";
 import { ChevronUp as ChevronUpIcon } from "lucide-react";
+
 import React from "react";
-import { Box, Typography, useTheme } from "@mui/material";
+
+import { RouteDetail } from "@root/src/types/types";
 
 interface ListItemLinkProps {
   icon?: React.ReactElement;
@@ -34,30 +35,27 @@ interface ListItemLinkProps {
 const LinkItem = (props: ListItemLinkProps) => {
   const { icon, label, open, isActive, isExpanded, hasChildren } = props;
   const theme = useTheme();
+  const isActiveOrExpanded = isActive || isExpanded;
 
   return (
     <Box
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: theme.spacing(1),
-        padding: theme.spacing(1),
+        gap: 1,
+        padding: 1,
         borderRadius: "8px",
-        width: "100%",
         justifyContent: "space-between",
         transition: "all 0.2s",
-        backgroundColor:
-          isActive || isExpanded
-            ? theme.palette.navigation.clickedBg
-            : "transparent",
-        color:
-          isActive || isExpanded
-            ? theme.palette.navigation.clicked
-            : theme.palette.navigation.link,
+        backgroundColor: isActiveOrExpanded ? "customNavigation.clickedBg" : "transparent",
         "&:hover": {
-          backgroundColor: theme.palette.navigation.hoverBg,
-          color: theme.palette.navigation.hover,
+          ...(!isActiveOrExpanded && {
+            backgroundColor: theme.palette.customNavigation.hoverBg,
+          }),
         },
+        color: isActiveOrExpanded
+          ? theme.palette.customNavigation.textClicked
+          : theme.palette.customNavigation.text 
       }}
     >
       <Box
@@ -69,7 +67,13 @@ const LinkItem = (props: ListItemLinkProps) => {
         }}
       >
         {icon && (
-          <Box sx={{ display: "flex", alignItems: "center", "& svg": { width: "20px", height: "20px" } }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              "& svg": { width: "20px", height: "20px" },
+            }}
+          >
             {icon}
           </Box>
         )}
@@ -86,7 +90,7 @@ const LinkItem = (props: ListItemLinkProps) => {
           </Typography>
         )}
       </Box>
-      {hasChildren && open && (isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />)}
+      {hasChildren && open && (isExpanded ? <ChevronUpIcon size={18} /> : <ChevronDownIcon size={18} />)}
     </Box>
   );
 };

@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import { useTheme } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 
 import type { RouteDetail } from "@/types/types";
@@ -37,7 +36,6 @@ const item = {
 };
 
 function SidebarSubMenu({ parentRoute, open }: { parentRoute: RouteDetail; open: boolean }) {
-  const theme = useTheme();
 
   return (
     <AnimatePresence>
@@ -51,13 +49,17 @@ function SidebarSubMenu({ parentRoute, open }: { parentRoute: RouteDetail; open:
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: open ? theme.spacing(1) : theme.spacing(2),
+            gap: "8px",
             width: "100%",
             overflow: "hidden",
           }}
         >
           {parentRoute.children!.map((child) => (
-            <motion.div key={child.path} variants={item} style={{ width: "100%" }}>
+            <motion.div
+              key={child.path}
+              variants={item}
+              style={{ width: "100%" }}
+            >
               <SubLink
                 to={child.path as string}
                 parentPath={parentRoute.path}

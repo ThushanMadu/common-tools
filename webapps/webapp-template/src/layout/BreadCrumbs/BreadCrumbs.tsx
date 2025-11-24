@@ -13,116 +13,116 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
-import { Tooltip, Box, Typography, useTheme } from "@mui/material";
+import { Box, Tooltip, Typography, useTheme } from "@mui/material";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
-import { useSelector } from "react-redux";
-
 import { Link, useLocation } from "react-router-dom";
 
-import { getActiveParentRoutes, routes } from "@src/route";
-import { selectRoles } from "@slices/authSlice/auth";
-
-import * as React from "react";
-
-const MAX_LENGTH = 5;
-
-function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-  event.preventDefault();
-}
-
 export default function BasicBreadcrumbs() {
+  const MAX_LENGTH = 5;
+
   const location = useLocation();
-  const roles = useSelector(selectRoles);
   const theme = useTheme();
 
-  const activeParentPaths = getActiveParentRoutes({ routes, roles }).map((route) => {
-    if (route === "/") return "/";
-    return route.slice(1);
-  });
   const { pathname } = location;
-  const pathnames = ["", ...pathname.split("/").filter(Boolean)];
+  const pathnames = pathname === "/" ? [] : pathname.split("/");
 
-  return (
-    <Box
-      role="presentation"
-      sx={{ mb: -0.125 }}
-      onClick={handleClick}
-    >
-      <Breadcrumbs
-        aria-label="breadcrumb"
+  const renderBreadCrumbs = () => {
+    let routeTo = "";
+
+    return (
+      <Box
         sx={{
-          "& .MuiBreadcrumbs-separator": {
-            marginLeft: theme.spacing(0.5),
-            marginRight: theme.spacing(0.5),
-            fontSize: "12px",
-            lineHeight: 1,
-          },
+          display: "flex",
+          gap: 1,
         }}
       >
-        {pathnames.map((path, index) => {
-          // Build the route to this breadcrumb
-          const routeTo = `${pathnames
-            .slice(0, index + 1)
-            .filter(Boolean)
-            .map((seg) => seg.trim())
-            .join("/")}`;
+        <Breadcrumbs
+          separator="›"
+          aria-label="breadcrumb"
+          sx={{
+            "& .MuiBreadcrumbs-separator": {
+              mx: "8px",
+            },
+          }}
+        >
+          {pathnames.map((path, index) => {
+            const isLong = path.length > MAX_LENGTH;
+            const isLast = pathnames.length - 1 === index;
+            routeTo += `${path}/`;
 
-          const isLast = index === pathnames.length - 1;
+            const label =
+              !isLast && isLong ? (
+                <Typography
+                  key={`${path}-short`}
+                  variant="caption"
+                  sx={{ color: theme.palette.customText.primary.p3.active }}
+                >
+                  {path.slice(0, 4)}...
+                </Typography>
+              ) : (
+                <Typography
+                  key={`${path}-full`}
+                  variant="caption"
+                  sx={{ color: theme.palette.customText.primary.p3.active }}
+                >
+                  {path}
+                </Typography>
+              );
 
-          // Check if the path is an active path or not
-          const isActive = activeParentPaths.includes(path);
-
-          const isLong = path.length >= MAX_LENGTH;
-          const label =
-            !isLast && isLong ? (
-              <Typography key={`${path}-truncated`} variant="body2" sx={{ fontSize: "12px" }}>
-                {path.slice(0, 4)}...
-              </Typography>
+            return isLong && !isLast ? (
+              <Tooltip key={path} title={path} placement="bottom">
+                <Box
+                  component={Link}
+                  to={routeTo}
+                  sx={{
+                    textDecoration: "none",
+                    color: theme.palette.customText.primary.p3.active,
+                    padding: theme.spacing(0.5),
+                    borderRadius: "4px",
+                    transition: "all 0.2s",
+                    display: "flex",
+                    alignItems: "center",
+                    "&:hover": {
+                      color: theme.palette.customText.primary.p2.active,
+                    },
+                  }}
+                >
+                  {label}
+                </Box>
+              </Tooltip>
             ) : (
-              <Typography key={`${path}-full`} variant="body2" sx={{ fontSize: "12px" }}>
-                {path}
-              </Typography>
-            );
-
-          return isActive && !isLast ? (
-            <Tooltip key={path} title={isLong ? path : ""} placement="bottom">
               <Box
                 component={Link}
                 to={routeTo}
                 sx={{
                   textDecoration: "none",
-                  color: theme.palette.textTokens[200],
+                  color: theme.palette.customText.primary.p3.active,
                   padding: theme.spacing(0.5),
                   borderRadius: "4px",
                   transition: "all 0.2s",
                   display: "flex",
                   alignItems: "center",
                   "&:hover": {
-                    color: theme.palette.textTokens[100],
-                    backgroundColor: theme.palette.background.mainLight,
+                    color: theme.palette.customText.primary.p2.active,
                   },
                 }}
               >
                 {label}
               </Box>
-            </Tooltip>
-          ) : (
-            <Box
-              key={path}
-              sx={{
-                textDecoration: "none",
-                color: theme.palette.textTokens[300],
-                padding: theme.spacing(0.5),
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              {label}
-            </Box>
-          );
-        })}
-      </Breadcrumbs>
+            );
+          })}
+        </Breadcrumbs>
+      </Box>
+    );
+  };
+
+  return (
+    <Box
+      sx={{
+        ml: -0.5,
+      }}
+    >
+      {renderBreadCrumbs()}
     </Box>
   );
 }

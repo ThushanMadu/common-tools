@@ -64,7 +64,6 @@ const TabOnePanel = () => {
           <Stack
             sx={{
               p: 2,
-              backgroundColor: "background.default",
               width: "100%",
               height: "100%",
               borderRadius: 3,
@@ -128,7 +127,6 @@ const TabOnePanel = () => {
               <Stack
                 sx={{
                   p: 2,
-                  backgroundColor: "background.default",
                   width: "100%",
                   height: "100%",
                   borderRadius: 3,

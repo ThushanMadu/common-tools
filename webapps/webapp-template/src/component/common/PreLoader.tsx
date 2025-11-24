@@ -14,63 +14,63 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { Box } from "@mui/material";
-import CircularProgress, {
-  CircularProgressProps,
-  circularProgressClasses,
-} from "@mui/material/CircularProgress";
+import Grid from "@mui/material/Grid";
+import { Box, Container, LinearProgress, Typography } from "@mui/material";
 
-import LoadingLogo from "@assets/images/loading.svg";
-import Wso2Logo from "@assets/images/wso2-logo.svg";
-import StateWithImage from "@component/ui/StateWithImage";
-import { APP_NAME } from "@config/config";
-import { PreLoaderProps } from "@utils/types";
-
-function CustomCircularProgress(props: CircularProgressProps) {
-  return (
-    <Box sx={{ position: "relative" }}>
-      <CircularProgress
-        variant="indeterminate"
-        disableShrink
-        sx={{
-          color: (theme) => theme.palette.primary.main,
-          animationDuration: "550ms",
-          position: "absolute",
-          left: 0,
-          [`& .${circularProgressClasses.circle}`]: {
-            strokeLinecap: "round",
-          },
-        }}
-        size={40}
-        thickness={4}
-        {...props}
-      />
-    </Box>
-  );
+interface PreLoaderProps {
+  message: string | null;
+  hideLogo?: boolean;
+  isLoading?: boolean;
 }
 
 const PreLoader = (props: PreLoaderProps) => {
-  const { message = `Loading ${APP_NAME} Data... `, hideLogo, isLoading } = props;
   return (
-    <div className="w-full h-full flex justify-center items-center">
-      <div className="p-12 w-120 py-10 rounded-2xl shadow-md bg-st-bg-main-light">
-        <div className="flex flex-col items-center justify-center gap-4">
-          {!hideLogo && (
-            <img
-              alt="logo"
-              width={150}
-              height={150}
-              className="h-auto w-[150px] select-none"
-              src={Wso2Logo}
-            />
-          )}
-
-          <StateWithImage message={message} imageUrl={LoadingLogo} />
-
-          {isLoading && <CustomCircularProgress size={40} thickness={4} />}
-        </div>
-      </div>
-    </div>
+    <Box
+      sx={{
+        background: (theme) => theme.palette.background.default,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        height: "100vh",
+      }}
+    >
+      <Container maxWidth="md">
+        <Box>
+          <Grid
+            container
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            spacing={2}
+          >
+            <Grid item xs={12}>
+              {props.isLoading && (
+                <LinearProgress
+                  sx={{
+                    width: "150px",
+                  }}
+                />
+              )}
+            </Grid>
+            <Grid item xs={12}>
+              <Typography
+                variant="inherit"
+                sx={{
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  color: (theme) =>
+                    theme.palette.mode === "light"
+                      ? theme.palette.common.black
+                      : theme.palette.common.white,
+                }}
+              >
+                {props.message}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

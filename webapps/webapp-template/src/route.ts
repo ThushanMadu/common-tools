@@ -28,7 +28,7 @@ import type { RouteDetail, RouteObjectWithRole } from "./types/types";
 export const routes: RouteObjectWithRole[] = [
   {
     path: "/",
-    text: "First View",
+    text: "Home",
     icon: React.createElement(HomeIcon),
     element: React.createElement(View.firstView),
     allowRoles: [Role.ADMIN, Role.EMPLOYEE],
@@ -68,7 +68,7 @@ export const routes: RouteObjectWithRole[] = [
     path: "/page-two",
     text: "Page 2",
     icon: React.createElement(CircleQuestionMark),
-    element: React.createElement(View.page),
+    element: React.createElement(View.pageTwo),
     allowRoles: [Role.ADMIN, Role.EMPLOYEE],
     children: [
       {
@@ -86,22 +86,6 @@ export const routes: RouteObjectWithRole[] = [
         allowRoles: [Role.ADMIN, Role.EMPLOYEE],
       },
     ],
-  },
-
-  {
-    path: "/page-3",
-    text: "Page 3",
-    icon: React.createElement(CircleQuestionMark),
-    element: React.createElement(View.page),
-    allowRoles: [Role.ADMIN, Role.EMPLOYEE],
-  },
-
-  {
-    path: "/demo-tab",
-    text: "Demonstrate Tabs",
-    icon: React.createElement(CircleQuestionMark),
-    element: React.createElement(View.demoTabPage),
-    allowRoles: [Role.ADMIN, Role.EMPLOYEE],
   },
 ];
 

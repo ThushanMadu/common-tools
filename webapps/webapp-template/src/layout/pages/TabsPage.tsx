@@ -13,10 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
-import React, { useEffect, useState, useMemo } from "react";
+import { Box, Button, useTheme } from "@mui/material";
+import { AnimatePresence, motion } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+
+import React, { useEffect, useMemo, useState } from "react";
 
 interface TabsPageProps {
   title: string;
@@ -54,35 +55,37 @@ export default function TabsPage({ tabsPage }: TabsPageProps) {
   };
 
   return (
-    <div className="h-full transition-colors duration-200">
+    <Box
+      sx={{
+        height: "100%",
+        transition: "colors 200ms",
+      }}
+    >
       {/* Tab Navigation */}
-      <Tabs
-        tabs={tabsPage}
-        activeIndex={value}
-        handleTabClick={handleTabClick}
-      />
+      <Tabs tabs={tabsPage} activeIndex={value} handleTabClick={handleTabClick} />
 
       {/* Tab Content with animations */}
       <AnimatePresence mode="wait">
         {tabsPage.map(
           (tab, index) =>
             value === index && (
-              <motion.div
+              <Box
+                component={motion.div}
                 key={index}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="w-full"
+                sx={{ width: "100%" }}
               >
                 <TabPanel value={value} index={index}>
                   {tab.page}
                 </TabPanel>
-              </motion.div>
-            )
+              </Box>
+            ),
         )}
       </AnimatePresence>
-    </div>
+    </Box>
   );
 }
 
@@ -93,43 +96,65 @@ interface TabToggleProps {
 }
 
 export function Tabs({ tabs, activeIndex, handleTabClick }: TabToggleProps) {
+  const theme = useTheme();
+
   return (
-    <div className="flex flex-row">
-      <div className="flex border-b border-st-border-medium  w-full relative hover:text-gray-700 transition-colors duration-200 ">
+    <Box sx={{ display: "flex", flexDirection: "row" }}>
+      <Box
+        sx={{
+          display: "flex",
+          borderBottom: 1,
+          borderColor: theme.palette.customBorder.territory.active,
+          width: "100%",
+          position: "relative",
+          transition: "colors 200ms",
+        }}
+      >
         {tabs.map((tab, index) => (
-          <motion.button
+          <Button
+            component={motion.button}
             key={index}
             onClick={() => handleTabClick(index)}
-            className={`
-                flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium relative
-                ${activeIndex === index ? "text-st-text-100 " : "text-gray-500"}
-              `}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            disableRipple
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 2,
+              paddingTop: "8px",
+              paddingBottom: "16px",
+              borderRadius: "0px",
+              px: 2,
+              fontSize: "0.875rem",
+              fontWeight: "medium",
+              position: "relative",
+              color:
+                activeIndex === index
+                  ? theme.palette.customText.primary.p2.active
+                  : theme.palette.customText.primary.p3.active,
+              textTransform: "none",
+              minWidth: "auto",
+              borderBottom:
+                activeIndex === index
+                  ? `2px solid ${theme.palette.customText.primary.p2.active}`
+                  : "none",
+              "&:hover": {
+                backgroundColor: "transparent",
+              },
+            }}
           >
-            <span className="w-fit items-center">
-              {React.cloneElement(tab.icon, {
-                className: `w-5 h-5 mb-[2px]  ${
-                  activeIndex === index ? "text-st-text-100" : "text-gray-500 "
-                }`,
-              })}
-            </span>
-            <span>{tab.tabTitle}</span>
+            <Box
+              component="span"
+              sx={{ width: "fit-content", display: "flex", alignItems: "center" }}
+            >
+              {React.cloneElement(tab.icon)}
+            </Box>
+            <Box component="span">{tab.tabTitle}</Box>
 
-            {/* Animated underline */}
-            {activeIndex === index && (
-              <motion.div
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-st-text-100"
-                layoutId="activeTab"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-              />
-            )}
-          </motion.button>
+          </Button>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
 
@@ -143,20 +168,21 @@ export function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
   return (
-    <div
+    <Box
       role="tabpanel"
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
-      className="p-4"
+      sx={{ p: 4 }}
     >
-      <motion.div
+      <Box
+        component={motion.div}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
       >
         {children}
-      </motion.div>
-    </div>
+      </Box>
+    </Box>
   );
 }
