@@ -76,7 +76,6 @@ export default function BasicBreadcrumbs() {
                   to={routeTo}
                   sx={{
                     textDecoration: "none",
-                    color: theme.palette.customText.primary.p3.active,
                     padding: theme.spacing(0.5),
                     borderRadius: "4px",
                     transition: "all 0.2s",
