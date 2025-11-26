@@ -170,19 +170,18 @@ func SchemasMatch(s1, s2 bigquery.Schema, logger *zap.Logger) bool {
 
 // ToSaveable converts a DynamicRow into a map representation using column names as keys.
 // Iterates through all columns and assigns corresponding values from the row.
-// If Values and ColumnNames have different lengths, missing values are set to nil.
 // Returns a generic map[string]any suitable for serialization or database storage.
 func (r *DynamicRow) ToSaveable() map[string]any {
-	result := make(map[string]any, len(r.ColumnNames))
-	valuesLen := len(r.Values)
-
-	for i, colName := range r.ColumnNames {
-		if i < valuesLen {
-			result[colName] = r.Values[i]
-		} else {
-			// Assign nil for columns without corresponding values
-			result[colName] = nil
+	result := make(map[string]any)
+	if len(r.Values) != len(r.ColumnNames) {
+		minLen := min(len(r.Values), len(r.ColumnNames))
+		for i := range minLen {
+			result[r.ColumnNames[i]] = r.Values[i]
 		}
+		return result
+	}
+	for i, colName := range r.ColumnNames {
+		result[colName] = r.Values[i]
 	}
 	return result
 }
