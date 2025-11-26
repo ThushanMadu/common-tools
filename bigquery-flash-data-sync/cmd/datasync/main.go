@@ -12,11 +12,11 @@
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
-// under the License.ent.
+// under the License.
 
 // Package main is the entry point for the BigQuery data synchronization application.
-// It is responsible for loading configuration, setting up database connections,
-// and initiating the data transfer pipeline.
+// This tool syncs data from any SQL databases (MySQL, PostgreSQL) to Google BigQuery.
+// It supports configuring multiple databases and tables via environment variables.
 package main
 
 import (

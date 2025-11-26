@@ -12,10 +12,9 @@
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
-// under the License.ent.
+// under the License.
 
-// Package model contains the data structures for database rows and BigQuery schemas,
-// as well as the parser functions required to scan SQL rows into those structs.
+// Package model provides data parsing utilities for converting SQL rows to saveable formats.
 package model
 
 import (
@@ -26,48 +25,61 @@ import (
 	"go.uber.org/zap"
 )
 
-// ParseDynamicRow reads a single SQL row and dynamically maps its columns and values into a DynamicRow.
-// It handles scanning, type conversion, and returns a Savable interface for BigQuery ingestion.
-func ParseDynamicRow(rows *sql.Rows, logger *zap.Logger, dateFormat string) (Savable, error) {
+// ParseDynamicRow scans a sql.Rows result into a DynamicRow structure.
+// It handles various SQL types and converts them appropriately for BigQuery.
+func ParseDynamicRow(rows *sql.Rows, logger *zap.Logger, dateFormat string) (*DynamicRow, error) {
 	columns, err := rows.Columns()
 	if err != nil {
-		logger.Error("Failed to get columns from query result", zap.Error(err))
 		return nil, fmt.Errorf("failed to get columns: %w", err)
 	}
+
 	values := make([]any, len(columns))
-	scanArgs := make([]any, len(columns))
+	valuePtrs := make([]any, len(columns))
 	for i := range values {
-		scanArgs[i] = &values[i]
+		valuePtrs[i] = &values[i]
 	}
-	if err := rows.Scan(scanArgs...); err != nil {
-		logger.Error("Failed to scan row values",
-			zap.Error(err),
-			zap.Int("expected_columns", len(columns)))
+
+	if err := rows.Scan(valuePtrs...); err != nil {
 		return nil, fmt.Errorf("failed to scan row: %w", err)
 	}
-	dynamicRow := &DynamicRow{
+
+	for i, val := range values {
+		values[i] = convertValue(val, dateFormat, logger)
+	}
+
+	return &DynamicRow{
 		ColumnNames: columns,
-		Values:      make([]any, len(columns)),
-	}
-	for i, rawValue := range values {
-		dynamicRow.Values[i] = convertValueToInterface(rawValue, dateFormat)
-	}
-	logger.Debug("Row parsed dynamically", zap.Int("columns_scanned", len(columns)))
-	return dynamicRow, nil
+		Values:      values,
+	}, nil
 }
 
-// convertValueToInterface handles the type conversion from raw SQL driver types
-// into types that are safe for JSON encoding and BigQuery loading.
-func convertValueToInterface(rawValue any, dateFormat string) any {
-	if rawValue == nil {
+// convertValue converts SQL values to appropriate Go types for BigQuery.
+func convertValue(val any, dateFormat string, logger *zap.Logger) any {
+	if val == nil {
 		return nil
 	}
-	switch v := rawValue.(type) {
+
+	switch v := val.(type) {
 	case []byte:
 		return string(v)
 	case time.Time:
+		if v.IsZero() {
+			return nil
+		}
 		return v.Format(dateFormat)
-	default:
+	case int64, int32, int16, int8, int:
 		return v
+	case uint64, uint32, uint16, uint8, uint:
+		return v
+	case float64, float32:
+		return v
+	case bool:
+		return v
+	case string:
+		return v
+	default:
+		logger.Debug("Converting unknown type to string",
+			zap.String("type", fmt.Sprintf("%T", v)))
+		return fmt.Sprintf("%v", v)
 	}
 }
