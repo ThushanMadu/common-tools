@@ -1,11 +1,11 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www. wso2.com).
+// Copyright (c) 2025 WSO2 LLC.  (https://www.wso2.com).
 //
-// WSO2 LLC.  licenses this file to you under the Apache License,
-// Version 2. 0 (the "License"); you may not use this file except
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache. org/licenses/LICENSE-2. 0
 //
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
@@ -37,7 +37,7 @@ import (
 )
 
 // Start initializes the BigQuery client and orchestrates multiple concurrent ETL jobs using errgroup.
-// It dynamically processes all enabled databases and tables from the configuration. 
+// It dynamically processes all enabled databases and tables from the configuration.
 // Returns an error if any job fails or if client initialization encounters an issue.
 func Start(ctx context.Context, cfg *model.Config, logger *zap.Logger) error {
 	logger.Info("Initializing BigQuery client",
@@ -45,7 +45,7 @@ func Start(ctx context.Context, cfg *model.Config, logger *zap.Logger) error {
 		zap.String("dataset_id", cfg.BigQueryDatasetID),
 	)
 
-	bqClient, err := bigquery. NewClient(ctx, cfg.GCPProjectID)
+	bqClient, err := bigquery.NewClient(ctx, cfg.GCPProjectID)
 	if err != nil {
 		return fmt.Errorf("failed to create BigQuery client: %w", err)
 	}
@@ -55,13 +55,13 @@ func Start(ctx context.Context, cfg *model.Config, logger *zap.Logger) error {
 	totalTables := cfg.CountEnabledTables()
 
 	if len(enabledDatabases) == 0 {
-		logger. Warn("No enabled databases found in configuration")
+		logger.Warn("No enabled databases found in configuration")
 		return nil
 	}
 
 	logger.Info("Starting sync pipeline",
 		zap.Int("enabled_databases", len(enabledDatabases)),
-		zap. Int("total_tables", totalTables),
+		zap.Int("total_tables", totalTables),
 		zap.Bool("dry_run", cfg.DryRun),
 	)
 
@@ -90,7 +90,7 @@ func Start(ctx context.Context, cfg *model.Config, logger *zap.Logger) error {
 				summary.Results = append(summary.Results, result)
 
 				if result.Error != nil {
-					summary. FailedSyncs++
+					summary.FailedSyncs++
 					return result.Error
 				}
 
@@ -103,7 +103,7 @@ func Start(ctx context.Context, cfg *model.Config, logger *zap.Logger) error {
 
 	if err := g.Wait(); err != nil {
 		logger.Error("One or more sync jobs failed",
-			zap. Error(err),
+			zap.Error(err),
 			zap.Int("successful", summary.SuccessfulSyncs),
 			zap.Int("failed", summary.FailedSyncs),
 		)
@@ -122,8 +122,8 @@ func Start(ctx context.Context, cfg *model.Config, logger *zap.Logger) error {
 }
 
 // runTableJob handles the ETL process for a single table, including schema inference,
-// BigQuery table creation/update, data extraction, and load. 
-func runTableJob(ctx context.Context, bqClient *bigquery.Client, cfg *model. Config, dbConfig *model.DatabaseConfig, tableConfig *model.TableConfig, logger *zap.Logger) *model.SyncResult {
+// BigQuery table creation/update, data extraction, and load.
+func runTableJob(ctx context.Context, bqClient *bigquery.Client, cfg *model.Config, dbConfig *model.DatabaseConfig, tableConfig *model.TableConfig, logger *zap.Logger) *model.SyncResult {
 	result := &model.SyncResult{
 		DatabaseName: dbConfig.Name,
 		TableName:    tableConfig.Name,
@@ -151,13 +151,13 @@ func runTableJob(ctx context.Context, bqClient *bigquery.Client, cfg *model. Con
 	if err != nil {
 		result.Error = fmt.Errorf("failed to open DB connection: %w", err)
 		result.CompletedAt = time.Now()
-		result. Duration = result.CompletedAt.Sub(result.StartedAt)
+		result.Duration = result.CompletedAt.Sub(result.StartedAt)
 		logger.Error("Database connection failed", zap.Error(err))
 		return result
 	}
 	defer db.Close()
 
-	inferredSchema, err := InferSchemaFromDatabase(db, dbConfig. Type, dummyQuery, logger)
+	inferredSchema, err := InferSchemaFromDatabase(db, dbConfig.Type, dummyQuery, logger)
 	if err != nil {
 		result.Error = fmt.Errorf("failed to infer schema: %w", err)
 		result.CompletedAt = time.Now()
@@ -167,7 +167,7 @@ func runTableJob(ctx context.Context, bqClient *bigquery.Client, cfg *model. Con
 	}
 
 	logger.Info("Schema inferred successfully",
-		zap. Int("columns", len(inferredSchema)),
+		zap.Int("columns", len(inferredSchema)),
 	)
 
 	if cfg.DryRun {
@@ -181,11 +181,11 @@ func runTableJob(ctx context.Context, bqClient *bigquery.Client, cfg *model. Con
 	bqTable := model.BQTable{Name: targetTableName, Schema: inferredSchema}
 
 	if cfg.CreateTables {
-		if err := createOrUpdateTable(ctx, bqClient, cfg. BigQueryDatasetID, bqTable, logger); err != nil {
-			result.Error = fmt. Errorf("failed to create/update BigQuery table: %w", err)
+		if err := createOrUpdateTable(ctx, bqClient, cfg.BigQueryDatasetID, bqTable, logger); err != nil {
+			result.Error = fmt.Errorf("failed to create/update BigQuery table: %w", err)
 			result.CompletedAt = time.Now()
 			result.Duration = result.CompletedAt.Sub(result.StartedAt)
-			logger.Error("BigQuery table creation failed", zap. Error(err))
+			logger.Error("BigQuery table creation failed", zap.Error(err))
 			return result
 		}
 	}
@@ -200,9 +200,9 @@ func runTableJob(ctx context.Context, bqClient *bigquery.Client, cfg *model. Con
 		Query:            sourceQuery,
 		Columns:          tableConfig.Columns,
 		PrimaryKey:       tableConfig.PrimaryKey,
-		TimestampColumn:  tableConfig. TimestampColumn,
+		TimestampColumn:  tableConfig.TimestampColumn,
 		BatchSize:        tableConfig.GetBatchSize(cfg.DefaultBatchSize),
-		ParseFunc: func(rows *sql.Rows, logger *zap.Logger) (model. Savable, error) {
+		ParseFunc: func(rows *sql.Rows, logger *zap.Logger) (model.Savable, error) {
 			return model.ParseDynamicRow(rows, logger, cfg.DateFormat)
 		},
 	}
@@ -221,8 +221,8 @@ func runTableJob(ctx context.Context, bqClient *bigquery.Client, cfg *model. Con
 	result.Duration = result.CompletedAt.Sub(result.StartedAt)
 
 	logger.Info("Table sync job completed successfully",
-		zap. Int64("rows_synced", rowsSynced),
-		zap. Duration("duration", result.Duration),
+		zap.Int64("rows_synced", rowsSynced),
+		zap.Duration("duration", result.Duration),
 	)
 
 	return result
@@ -264,14 +264,14 @@ var validSQLIdentifier = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
 // validateSQLIdentifier ensures the identifier is safe to insert into a SQL query.
 func validateSQLIdentifier(id string) error {
-	if ! validSQLIdentifier.MatchString(id) {
+	if !validSQLIdentifier.MatchString(id) {
 		return fmt.Errorf("invalid SQL identifier: %s", id)
 	}
 	return nil
 }
 
 // openDatabaseConnection opens a connection to the source database with proper configuration.
-func openDatabaseConnection(dbConfig *model.DatabaseConfig, cfg *model.Config, logger *zap.Logger) (*sql. DB, error) {
+func openDatabaseConnection(dbConfig *model.DatabaseConfig, cfg *model.Config, logger *zap.Logger) (*sql.DB, error) {
 	var driverName string
 	switch dbConfig.Type {
 	case "mysql":
@@ -283,7 +283,7 @@ func openDatabaseConnection(dbConfig *model.DatabaseConfig, cfg *model.Config, l
 	}
 
 	logger.Debug("Opening database connection",
-		zap. String("driver", driverName),
+		zap.String("driver", driverName),
 		zap.String("host", dbConfig.Host),
 		zap.String("database", dbConfig.DatabaseName),
 	)
@@ -294,9 +294,9 @@ func openDatabaseConnection(dbConfig *model.DatabaseConfig, cfg *model.Config, l
 	}
 
 	db.SetMaxOpenConns(cfg.MaxOpenConns)
-	db.SetMaxIdleConns(cfg. MaxIdleConns)
+	db.SetMaxIdleConns(cfg.MaxIdleConns)
 	if cfg.ConnMaxLifetime > 0 {
-		db. SetConnMaxLifetime(cfg.ConnMaxLifetime)
+		db.SetConnMaxLifetime(cfg.ConnMaxLifetime)
 	}
 
 	if err := db.Ping(); err != nil {
@@ -321,7 +321,7 @@ func executeJob(ctx context.Context, bqClient *bigquery.Client, cfg *model.Confi
 	rows, err := db.QueryContext(ctx, job.Query)
 	if err != nil {
 		logger.Error("Failed to query database", zap.Error(err))
-		return 0, fmt. Errorf("failed to query database: %w", err)
+		return 0, fmt.Errorf("failed to query database: %w", err)
 	}
 	defer rows.Close()
 
@@ -338,7 +338,7 @@ func executeJob(ctx context.Context, bqClient *bigquery.Client, cfg *model.Confi
 	var lastParseError error
 	rowNum := 0
 
-	for rows. Next() {
+	for rows.Next() {
 		rowNum++
 		rowData, err := job.ParseFunc(rows, logger)
 		if err != nil {
@@ -367,13 +367,13 @@ func executeJob(ctx context.Context, bqClient *bigquery.Client, cfg *model.Confi
 		if len(batch) >= maxRowsPerBatch {
 			// Encode batch into buffer
 			for _, r := range batch {
-				if err := encoder.Encode(r. ToSaveable()); err != nil {
+				if err := encoder.Encode(r.ToSaveable()); err != nil {
 					return 0, fmt.Errorf("failed to encode batch: %w", err)
 				}
 			}
 
 			// Upload this batch to BigQuery
-			if err := uploadBufferToBigQuery(ctx, bqClient, cfg, job. TargetTable, &buf, cfg.TruncateOnSync && totalRowsExtracted == 0); err != nil {
+			if err := uploadBufferToBigQuery(ctx, bqClient, cfg, job.TargetTable, &buf, cfg.TruncateOnSync && totalRowsExtracted == 0); err != nil {
 				return 0, err
 			}
 
@@ -398,9 +398,10 @@ func executeJob(ctx context.Context, bqClient *bigquery.Client, cfg *model.Confi
 
 	if err := rows.Err(); err != nil {
 		logger.Error("Error during row iteration", zap.Error(err))
-		return 0, fmt. Errorf("error during row iteration: %w", err)
+		return 0, fmt.Errorf("error during row iteration: %w", err)
 	}
 
+	// Final summary log with all relevant counts
 	logger.Info("Extraction complete",
 		zap.Int("total_rows_processed", rowNum),
 		zap.Int64("rows_extracted", totalRowsExtracted),
@@ -408,7 +409,7 @@ func executeJob(ctx context.Context, bqClient *bigquery.Client, cfg *model.Confi
 	)
 
 	if skippedRows > 0 {
-		logger. Warn("Some rows were skipped during parsing",
+		logger.Warn("Some rows were skipped during parsing",
 			zap.Int("skipped_rows", skippedRows),
 			zap.Int("total_rows_processed", rowNum),
 			zap.Float64("skip_percentage", float64(skippedRows)/float64(rowNum)*100),
@@ -422,12 +423,12 @@ func executeJob(ctx context.Context, bqClient *bigquery.Client, cfg *model.Confi
 	return totalRowsExtracted, nil
 }
 
-// logSyncSummary logs a detailed summary of all sync results. 
+// logSyncSummary logs a detailed summary of all sync results.
 func logSyncSummary(logger *zap.Logger, summary *model.SyncSummary) {
 	logger.Info("Sync Summary",
 		zap.Int("total_databases", summary.TotalDatabases),
 		zap.Int("total_tables", summary.TotalTables),
-		zap.Int("successful_syncs", summary. SuccessfulSyncs),
+		zap.Int("successful_syncs", summary.SuccessfulSyncs),
 		zap.Int("failed_syncs", summary.FailedSyncs),
 		zap.Int64("total_rows_synced", summary.TotalRowsSynced),
 	)
@@ -457,25 +458,25 @@ func logSyncSummary(logger *zap.Logger, summary *model.SyncSummary) {
 // controls whether the target table is overwritten (WriteTruncate) or appended to (WriteAppend).
 // After the upload completes successfully, the buffer is reset for reuse.
 // Returns an error if the load job creation, execution, or completion fails.
-func uploadBufferToBigQuery(ctx context.Context, bqClient *bigquery. Client, cfg *model.Config, table string, buf *bytes.Buffer, truncate bool) error {
+func uploadBufferToBigQuery(ctx context.Context, bqClient *bigquery.Client, cfg *model.Config, table string, buf *bytes.Buffer, truncate bool) error {
 	source := bigquery.NewReaderSource(buf)
-	source. SourceFormat = bigquery.JSON
+	source.SourceFormat = bigquery.JSON
 
 	loader := bqClient.Dataset(cfg.BigQueryDatasetID).Table(table).LoaderFrom(source)
 	if truncate {
-		loader. WriteDisposition = bigquery.WriteTruncate
+		loader.WriteDisposition = bigquery.WriteTruncate
 	} else {
 		loader.WriteDisposition = bigquery.WriteAppend
 	}
 
 	bqJob, err := loader.Run(ctx)
 	if err != nil {
-		return fmt. Errorf("failed to create BigQuery load job: %w", err)
+		return fmt.Errorf("failed to create BigQuery load job: %w", err)
 	}
 
 	status, err := bqJob.Wait(ctx)
 	if err != nil {
-		return fmt. Errorf("failed to wait for BigQuery job: %w", err)
+		return fmt.Errorf("failed to wait for BigQuery job: %w", err)
 	}
 
 	if err := status.Err(); err != nil {

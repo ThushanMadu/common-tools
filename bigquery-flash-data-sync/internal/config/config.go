@@ -1,16 +1,16 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com). 
+// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
 //
-// http://www.apache. org/licenses/LICENSE-2. 0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.   See the License for the
+// KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
 
@@ -53,7 +53,7 @@ const (
 	MaxRowParseFailuresKey = "MAX_ROW_PARSE_FAILURES"
 )
 
-// LoadConfig reads all required environment variables and builds database connection strings. 
+// LoadConfig reads all required environment variables and builds database connection strings.
 // It supports dynamic configuration for any number of databases and tables.
 func LoadConfig(logger *zap.Logger) (*model.Config, error) {
 	logger.Info("Loading configuration from environment variables")
@@ -62,12 +62,12 @@ func LoadConfig(logger *zap.Logger) (*model.Config, error) {
 	bqDatasetID := getEnv(BQDatasetID, "")
 
 	if gcpProjectID == "" || bqDatasetID == "" {
-		return nil, fmt. Errorf("GCP_PROJECT_ID and BQ_DATASET_ID are required")
+		return nil, fmt.Errorf("GCP_PROJECT_ID and BQ_DATASET_ID are required")
 	}
 
 	dbNames := getEnv(DatabasesKey, "")
 	if dbNames == "" {
-		return nil, fmt. Errorf("SYNC_DATABASES is required (comma-separated list of database identifiers)")
+		return nil, fmt.Errorf("SYNC_DATABASES is required (comma-separated list of database identifiers)")
 	}
 
 	databases := make(map[string]*model.DatabaseConfig)
@@ -86,12 +86,12 @@ func LoadConfig(logger *zap.Logger) (*model.Config, error) {
 		databases[dbName] = dbConfig
 		logger.Info("Loaded database configuration",
 			zap.String("database", dbName),
-			zap. Int("tables", len(dbConfig.Tables)),
+			zap.Int("tables", len(dbConfig.Tables)),
 		)
 	}
 
 	if len(databases) == 0 {
-		return nil, fmt. Errorf("no valid database configurations found")
+		return nil, fmt.Errorf("no valid database configurations found")
 	}
 
 	maxOpen := parseInt(logger, DBMaxOpenConns, "10", 10)
@@ -106,7 +106,7 @@ func LoadConfig(logger *zap.Logger) (*model.Config, error) {
 	createTables := parseBool(getEnv(CreateTablesKey, "true"))
 	truncateOnSync := parseBool(getEnv(TruncateOnSyncKey, "false"))
 
-	cfg := &model. Config{
+	cfg := &model.Config{
 		GCPProjectID:        gcpProjectID,
 		BigQueryDatasetID:   bqDatasetID,
 		Databases:           databases,
@@ -148,7 +148,7 @@ func loadDatabaseConfig(logger *zap.Logger, dbID string) (*model.DatabaseConfig,
 	enabled := parseBool(getEnv(prefix+"ENABLED", "true"))
 
 	if database == "" || user == "" {
-		return nil, fmt. Errorf("missing required config: %sDB_NAME and %sDB_USER are required", prefix, prefix)
+		return nil, fmt.Errorf("missing required config: %sDB_NAME and %sDB_USER are required", prefix, prefix)
 	}
 
 	connString := buildConnectionString(dbType, host, port, database, user, password, prefix)
@@ -182,9 +182,9 @@ func loadTableConfigs(logger *zap.Logger, dbID string) (map[string]*model.TableC
 	}
 
 	tables := make(map[string]*model.TableConfig)
-	tableList := strings.Split(tablesStr, ",")
+	tableList := strings.SplitSeq(tablesStr, ",")
 
-	for _, tableName := range tableList {
+	for tableName := range tableList {
 		tableName = strings.TrimSpace(tableName)
 		if tableName == "" {
 			continue
@@ -195,7 +195,7 @@ func loadTableConfigs(logger *zap.Logger, dbID string) (map[string]*model.TableC
 	}
 
 	if len(tables) == 0 {
-		return nil, fmt. Errorf("no valid tables found for database '%s'", dbID)
+		return nil, fmt.Errorf("no valid tables found for database '%s'", dbID)
 	}
 
 	return tables, nil
@@ -270,15 +270,15 @@ func getEnv(key, defaultValue string) string {
 }
 
 // parseInt fetches an environment variable by key, attempts to convert it
-// into an integer, and returns it. If conversion fails, it logs a warning
+// into an integer, and returns it.  If conversion fails, it logs a warning
 // and returns the provided fallback integer.
 func parseInt(logger *zap.Logger, key, defaultValue string, fallback int) int {
 	v := getEnv(key, defaultValue)
-	i, err := strconv. Atoi(v)
+	i, err := strconv.Atoi(v)
 	if err != nil {
-		logger. Warn(fmt.Sprintf("Invalid %s, using default", key),
+		logger.Warn(fmt.Sprintf("Invalid %s, using default", key),
 			zap.String("value", v),
-			zap. Int("default", fallback),
+			zap.Int("default", fallback),
 			zap.Error(err))
 		return fallback
 	}
