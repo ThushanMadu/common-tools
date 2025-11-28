@@ -399,45 +399,6 @@ func executeJob(ctx context.Context, bqClient *bigquery.Client, cfg *model.Confi
 		logger.Info("No rows to load. Job finished.")
 		return 0, nil
 	}
-
-	source := bigquery.NewReaderSource(&buf)
-	source.SourceFormat = bigquery.JSON
-
-	loader := bqClient.Dataset(cfg.BigQueryDatasetID).Table(job.TargetTable).LoaderFrom(source)
-
-	if cfg.TruncateOnSync {
-		loader.WriteDisposition = bigquery.WriteTruncate
-	} else {
-		loader.WriteDisposition = bigquery.WriteAppend
-	}
-
-	logger.Info("Starting BigQuery load job",
-		zap.String("table", job.TargetTable),
-		zap.Int64("rows", totalRowsExtracted),
-	)
-
-	bqJob, err := loader.Run(ctx)
-	if err != nil {
-		logger.Error("Failed to create BigQuery load job", zap.Error(err))
-		return 0, fmt.Errorf("failed to create BigQuery load job: %w", err)
-	}
-
-	status, err := bqJob.Wait(ctx)
-	if err != nil {
-		logger.Error("Failed to wait for BigQuery job to complete", zap.Error(err))
-		return 0, fmt.Errorf("failed to wait for BigQuery job to complete: %w", err)
-	}
-
-	if err := status.Err(); err != nil {
-		logger.Error("BigQuery load job failed", zap.Error(err))
-		return 0, fmt.Errorf("BigQuery load job failed: %w", err)
-	}
-
-	logger.Info("BigQuery load job completed successfully",
-		zap.String("table", job.TargetTable),
-		zap.Int64("rows_loaded", totalRowsExtracted),
-	)
-
 	return totalRowsExtracted, nil
 }
 
