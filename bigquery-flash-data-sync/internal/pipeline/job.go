@@ -253,7 +253,7 @@ func buildSourceQuery(dbConfig *model.DatabaseConfig, tableConfig *model.TableCo
 	}
 
 	// Build final SELECT query
-	return fmt.Sprintf("SELECT %s FROM %s. %s",
+	return fmt.Sprintf("SELECT %s FROM %s.%s",
 		columns,
 		dbConfig.DatabaseName,
 		tableConfig.Name,
