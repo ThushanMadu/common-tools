@@ -32,8 +32,8 @@ gcloud auth application-default login
 gcloud config set project YOUR_PROJECT_ID
 
 # 4.  Bootstrap your configuration
-cp .env.example . env
-# Edit . env with your credentials (see Configuration below)
+cp .env.example .env
+# Edit .env with your credentials (see Configuration below)
 
 # 5. Run in dry-run mode to validate
 DRY_RUN=true go run ./cmd/datasync
@@ -45,7 +45,7 @@ go build -ldflags "-X main.Version=1.0.0" -o bin/datasync ./cmd/datasync
 
 ## ⚙️ Configuration
 
-All runtime settings are loaded from environment variables. Copy `.env.example` to `.env` and configure your databases. 
+All runtime settings are loaded from environment variables. Copy `.env.example` to `.env` and configure your databases.
 
 ### Minimal Configuration
 
@@ -80,52 +80,52 @@ SALESFORCE_TABLES=opportunities,contacts
 
 ### Global BigQuery & Runtime Settings
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `GCP_PROJECT_ID` | Target Google Cloud project | _required_ |
-| `BQ_DATASET_ID` | BigQuery dataset where tables are created | _required_ |
-| `SYNC_TIMEOUT` | Pipeline timeout (Go duration) | `10m` |
-| `DRY_RUN` | Skip BigQuery writes while exercising extraction | `false` |
-| `AUTO_CREATE_TABLES` | Create BigQuery tables when missing | `true` |
-| `TRUNCATE_ON_SYNC` | Replace table contents on first load | `false` |
-| `ALLOW_TABLE_RECREATION` | Allow automatic table deletion/recreation on critical schema errors (⚠️ causes data loss) | `false` |
-| `MAX_ROW_PARSE_FAILURES` | Allowed row parse errors per table (`-1` = unlimited) | `100` |
-| `DATE_FORMAT` | Layout for timestamp parsing (`time` package format) | `2006-01-02T15:04:05Z07:00` |
-| `DEFAULT_BATCH_SIZE` | Rows buffered before each load job | `1000` |
+| Variable                 | Description                                                                               | Default                     |
+| ------------------------ | ----------------------------------------------------------------------------------------- | --------------------------- |
+| `GCP_PROJECT_ID`         | Target Google Cloud project                                                               | _required_                  |
+| `BQ_DATASET_ID`          | BigQuery dataset where tables are created                                                 | _required_                  |
+| `SYNC_TIMEOUT`           | Pipeline timeout (Go duration)                                                            | `10m`                       |
+| `DRY_RUN`                | Skip BigQuery writes while exercising extraction                                          | `false`                     |
+| `AUTO_CREATE_TABLES`     | Create BigQuery tables when missing                                                       | `true`                      |
+| `TRUNCATE_ON_SYNC`       | Replace table contents on first load                                                      | `false`                     |
+| `ALLOW_TABLE_RECREATION` | Allow automatic table deletion/recreation on critical schema errors (⚠️ causes data loss) | `false`                     |
+| `MAX_ROW_PARSE_FAILURES` | Allowed row parse errors per table (`-1` = unlimited)                                     | `100`                       |
+| `DATE_FORMAT`            | Layout for timestamp parsing (`time` package format)                                      | `2006-01-02T15:04:05Z07:00` |
+| `DEFAULT_BATCH_SIZE`     | Rows buffered before each load job                                                        | `1000`                      |
 
 ### Global Database Defaults
 
 These are used when per-database overrides are not specified:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DB_HOST` | Default host | `localhost` |
-| `DB_PORT` | Default port | `3306` |
-| `DB_TYPE` | Default driver (`mysql` or `postgres`) | `mysql` |
-| `DB_MAX_OPEN_CONNECTIONS` | Connection pool size | `10` |
-| `DB_MAX_IDLE_CONNECTIONS` | Idle pool size | `10` |
-| `DB_CONN_MAX_LIFETIME` | Lifetime for pooled connections | `1m` |
+| Variable                  | Description                            | Default     |
+| ------------------------- | -------------------------------------- | ----------- |
+| `DB_HOST`                 | Default host                           | `localhost` |
+| `DB_PORT`                 | Default port                           | `3306`      |
+| `DB_TYPE`                 | Default driver (`mysql` or `postgres`) | `mysql`     |
+| `DB_MAX_OPEN_CONNECTIONS` | Connection pool size                   | `10`        |
+| `DB_MAX_IDLE_CONNECTIONS` | Idle pool size                         | `10`        |
+| `DB_CONN_MAX_LIFETIME`    | Lifetime for pooled connections        | `1m`        |
 
 ### TLS/SSL Configuration
 
 Secure database connections with proper certificate verification:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DB_TLS_MODE` | TLS mode: `disable`, `require`, `verify-ca`, `verify-full` | `verify-full` |
-| `DB_TLS_CA_PATH` | Path to CA certificate file | _required for verify modes_ |
-| `DB_TLS_CERT_PATH` | Path to client certificate (for mutual TLS) | _optional_ |
-| `DB_TLS_KEY_PATH` | Path to client private key (for mutual TLS) | _optional_ |
-| `DB_TLS_SERVER_NAME` | Server name for certificate verification | _defaults to host_ |
+| Variable             | Description                                                | Default                     |
+| -------------------- | ---------------------------------------------------------- | --------------------------- |
+| `DB_TLS_MODE`        | TLS mode: `disable`, `require`, `verify-ca`, `verify-full` | `verify-full`               |
+| `DB_TLS_CA_PATH`     | Path to CA certificate file                                | _required for verify modes_ |
+| `DB_TLS_CERT_PATH`   | Path to client certificate (for mutual TLS)                | _optional_                  |
+| `DB_TLS_KEY_PATH`    | Path to client private key (for mutual TLS)                | _optional_                  |
+| `DB_TLS_SERVER_NAME` | Server name for certificate verification                   | _defaults to host_          |
 
 **TLS Mode Options:**
 
-| Mode | Encryption | Server Verification | Hostname Check | Security Level |
-|------|------------|---------------------|----------------|----------------|
-| `disable` | ❌ | ❌ | ❌ | ⚠️ Insecure |
-| `require` | ✅ | ❌ | ❌ | ⚠️ Weak |
-| `verify-ca` | ✅ | ✅ | ❌ | ✅ Good |
-| `verify-full` | ✅ | ✅ | ✅ | ✅ Best (recommended) |
+| Mode          | Encryption | Server Verification | Hostname Check | Security Level        |
+| ------------- | ---------- | ------------------- | -------------- | --------------------- |
+| `disable`     | ❌         | ❌                  | ❌             | ⚠️ Insecure           |
+| `require`     | ✅         | ❌                  | ❌             | ⚠️ Weak               |
+| `verify-ca`   | ✅         | ✅                  | ❌             | ✅ Good               |
+| `verify-full` | ✅         | ✅                  | ✅             | ✅ Best (recommended) |
 
 ### Per-Database Configuration
 
@@ -179,33 +179,33 @@ FINANCE_INVOICES_BATCH_SIZE=5000
 ### How It Works
 
 1.  **Configuration Loading**: Reads environment variables and builds database/table configs with validation
-2. **Schema Inference**: Automatically detects source schemas and maps to BigQuery types
-3. **Concurrent Processing**: Parallel extraction and loading using `errgroup` workers per table
-4. **Data Sanitization**: Handles special characters, NULLs, and invalid UTF-8 sequences
-5. **BigQuery Loading**: Creates/updates tables and loads data via JSON load jobs
-6. **Error Handling**: Configurable row parse failure threshold with detailed logging
+2.  **Schema Inference**: Automatically detects source schemas and maps to BigQuery types
+3.  **Concurrent Processing**: Parallel extraction and loading using `errgroup` workers per table
+4.  **Data Sanitization**: Handles special characters, NULLs, and invalid UTF-8 sequences
+5.  **BigQuery Loading**: Creates/updates tables and loads data via JSON load jobs
+6.  **Error Handling**: Configurable row parse failure threshold with detailed logging
 
 ### Supported Type Mappings
 
-| MySQL Type | PostgreSQL Type | BigQuery Type |
-|------------|-----------------|---------------|
-| VARCHAR, CHAR, TEXT | VARCHAR, TEXT, CITEXT | STRING |
-| INT, TINYINT, BIGINT | INTEGER, BIGINT, SERIAL | INTEGER |
-| FLOAT, DOUBLE, DECIMAL | FLOAT, NUMERIC, REAL | FLOAT |
-| DATE | DATE | DATE |
-| TIME | TIME, TIMETZ | TIME |
-| DATETIME, TIMESTAMP | TIMESTAMP, TIMESTAMPTZ | TIMESTAMP |
-| BOOLEAN, BOOL, BIT | BOOLEAN | BOOLEAN |
-| BLOB, BINARY, VARBINARY | BYTEA | BYTES |
-| JSON | JSON, JSONB | JSON |
-| ENUM, SET | UUID, INET, CIDR | STRING |
+| MySQL Type              | PostgreSQL Type         | BigQuery Type |
+| ----------------------- | ----------------------- | ------------- |
+| VARCHAR, CHAR, TEXT     | VARCHAR, TEXT, CITEXT   | STRING        |
+| INT, TINYINT, BIGINT    | INTEGER, BIGINT, SERIAL | INTEGER       |
+| FLOAT, DOUBLE, DECIMAL  | FLOAT, NUMERIC, REAL    | FLOAT         |
+| DATE                    | DATE                    | DATE          |
+| TIME                    | TIME, TIMETZ            | TIME          |
+| DATETIME, TIMESTAMP     | TIMESTAMP, TIMESTAMPTZ  | TIMESTAMP     |
+| BOOLEAN, BOOL, BIT      | BOOLEAN                 | BOOLEAN       |
+| BLOB, BINARY, VARBINARY | BYTEA                   | BYTES         |
+| JSON                    | JSON, JSONB             | JSON          |
+| ENUM, SET               | UUID, INET, CIDR        | STRING        |
 
 ## 📁 Project Structure
 
 ```
 bigquery-flash-data-sync/
 ├── README.md                    # This file
-├── . env.example                 # Configuration template
+├── .env.example                 # Configuration template
 ├── go.mod                       # Go module dependencies
 ├── go.sum                       # Dependency checksums
 ├── cmd/
@@ -220,27 +220,31 @@ bigquery-flash-data-sync/
     │   ├── models.go            # Data structures, schema comparison
     │   └── parser.go            # Row parsing, UTF-8 sanitization
     └── pipeline/
-        ├── bqsetup. go           # Schema inference, table management
+        ├── bqsetup.go           # Schema inference, table management
         └── job.go               # ETL job orchestration, concurrent sync
+
 ```
 
 ## ⚠️ Important: Table Recreation Behavior
 
-When critical schema errors are detected (e.g., incompatible type changes), the sync may need to delete and recreate the BigQuery table. 
+When critical schema errors are detected (e.g., incompatible type changes), the sync may need to delete and recreate the BigQuery table.
 
 **Default Behavior (Safe):**
+
 - `ALLOW_TABLE_RECREATION=false` (default)
 - Sync fails with an error message
 - Manual intervention required
 - **No data loss**
 
 **Opt-in Behavior (For automated pipelines):**
+
 - `ALLOW_TABLE_RECREATION=true`
 - Table is automatically deleted and recreated
 - Data is re-synced from source
 - **⚠️ WARNING: Causes data loss in BigQuery**
 
 Only enable `ALLOW_TABLE_RECREATION=true` if:
+
 - Your source database is the authoritative data source
 - You can afford to re-sync all data
 - You're running automated pipelines that need to handle schema changes
@@ -291,17 +295,17 @@ LOG_LEVEL=debug LOG_ENV=dev go run ./cmd/datasync
 
 ### Common Errors
 
-| Error | Solution |
-|-------|----------|
-| `Table 'database.table' doesn't exist` | Check table names in `{DB}_TABLES` variable |
-| `dial tcp: i/o timeout` | Verify `DB_HOST` and `DB_PORT`, check firewall |
-| `Access denied` | Verify credentials and user permissions |
-| `Permission denied` (BigQuery) | Add `bigquery.dataEditor` role to service account |
-| `invalid character` | Enable debug mode, check for invalid UTF-8 data |
-| `context deadline exceeded` | Increase `SYNC_TIMEOUT` value |
-| `exceeded maximum row parse failures` | Increase `MAX_ROW_PARSE_FAILURES` or fix source data |
+| Error                                                     | Solution                                                 |
+| --------------------------------------------------------- | -------------------------------------------------------- |
+| `Table 'database.table' doesn't exist`                    | Check table names in `{DB}_TABLES` variable              |
+| `dial tcp: i/o timeout`                                   | Verify `DB_HOST` and `DB_PORT`, check firewall           |
+| `Access denied`                                           | Verify credentials and user permissions                  |
+| `Permission denied` (BigQuery)                            | Add `bigquery.dataEditor` role to service account        |
+| `invalid character`                                       | Enable debug mode, check for invalid UTF-8 data          |
+| `context deadline exceeded`                               | Increase `SYNC_TIMEOUT` value                            |
+| `exceeded maximum row parse failures`                     | Increase `MAX_ROW_PARSE_FAILURES` or fix source data     |
 | `requires recreation... AllowTableRecreation is disabled` | Set `ALLOW_TABLE_RECREATION=true` or manually fix schema |
-| `failed to read CA certificate` | Verify `DB_TLS_CA_PATH` points to valid certificate |
+| `failed to read CA certificate`                           | Verify `DB_TLS_CA_PATH` points to valid certificate      |
 
 ### Test Mode
 
@@ -314,10 +318,10 @@ DRY_RUN=true go run ./cmd/datasync
 ## 📊 Performance
 
 | Rows | Columns | Tables | Sync Time | Memory |
-|------|---------|--------|-----------|--------|
-| 1K | 10 | 5 | ~3s | ~50MB |
-| 50K | 25 | 10 | ~20s | ~200MB |
-| 500K | 50 | 15 | ~120s | ~800MB |
+| ---- | ------- | ------ | --------- | ------ |
+| 1K   | 10      | 5      | ~3s       | ~50MB  |
+| 50K  | 25      | 10     | ~20s      | ~200MB |
+| 500K | 50      | 15     | ~120s     | ~800MB |
 
 ### Optimization Tips
 
@@ -351,7 +355,7 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License. 
+limitations under the License.
 
 ---
 
