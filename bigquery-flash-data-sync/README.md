@@ -269,7 +269,7 @@ INVENTORY_TABLES=products,stock_levels,warehouses
 
 # 3. Optional: Add TLS configuration
 INVENTORY_DB_TLS_MODE=verify-full
-INVENTORY_DB_TLS_CA_PATH=/path/to/inventory-ca. pem
+INVENTORY_DB_TLS_CA_PATH=/path/to/inventory-ca.pem
 ```
 
 ## 🐛 Troubleshooting
