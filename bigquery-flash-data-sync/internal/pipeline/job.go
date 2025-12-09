@@ -274,7 +274,7 @@ func buildSourceQuery(dbConfig *model.DatabaseConfig, tableConfig *model.TableCo
 		columns = strings.Join(tableConfig.Columns, ", ")
 	}
 
-	return fmt.Sprintf("SELECT %s FROM %s. %s",
+	return fmt.Sprintf("SELECT %s FROM %s.%s",
 		columns,
 		dbConfig.DatabaseName,
 		tableConfig.Name,
