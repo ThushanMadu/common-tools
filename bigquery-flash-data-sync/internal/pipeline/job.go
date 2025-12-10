@@ -37,11 +37,23 @@ import (
 	"go.uber.org/zap"
 )
 
-// dbDriverMap maps configuration database types to Go SQL driver names.
+// DBDriver defines the function signature for getting the SQL driver name.
+type DBDriver func(dbType string) string
+
+// dbDriverMap is a registry mapping database types to their SQL driver names.
 // This allows for easy extension (e.g., mapping "mssql" to "sqlserver" driver).
 var dbDriverMap = map[string]string{
 	"mysql":    "mysql",
 	"postgres": "postgres",
+}
+
+// getDBDriver returns the appropriate SQL driver for the given database type.
+func getDBDriver(dbType string) string {
+	driverName, exists := dbDriverMap[strings.ToLower(dbType)]
+	if !exists {
+		return "mysql" // default fallback
+	}
+	return driverName
 }
 
 // Start initializes the BigQuery client and orchestrates multiple concurrent ETL jobs using errgroup.
@@ -292,19 +304,16 @@ func validateSQLIdentifier(id string) error {
 }
 
 // openDatabaseConnection opens a connection to the source database with proper configuration.
+// It uses the map-based driver lookup for type safety and extensibility.
 func openDatabaseConnection(dbConfig *model.DatabaseConfig, cfg *model.Config, logger *zap.Logger) (*sql.DB, error) {
 	// Map lookup based on database type (case-insensitive)
-	driverName, exists := dbDriverMap[strings.ToLower(dbConfig.Type)]
-	if !exists {
-		logger.Warn("Unknown database type, defaulting to MySQL driver",
-			zap.String("configured_type", dbConfig.Type))
-		driverName = "mysql"
-	}
+	driverName := getDBDriver(dbConfig.Type)
 
 	logger.Debug("Opening database connection",
 		zap.String("driver", driverName),
 		zap.String("host", dbConfig.Host),
 		zap.String("database", dbConfig.DatabaseName),
+		zap.String("database_type", dbConfig.Type),
 	)
 
 	db, err := sql.Open(driverName, dbConfig.ConnectionString)
