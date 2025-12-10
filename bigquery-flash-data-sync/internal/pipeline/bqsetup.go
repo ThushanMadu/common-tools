@@ -71,13 +71,13 @@ func InferSchemaFromDatabase(db *sql.DB, dbType string, query string, logger *za
 		zap.String("db_type", dbType),
 		zap.String("query", query))
 
-	// Normalize key to lower case to ensure case-insensitive lookup
 	key := strings.ToLower(dbType)
 
 	inferrer, exists := schemaInferrers[key]
 	if !exists {
-		// Fail fast on unknown database types to prevent silent misconfiguration
-		return nil, fmt.Errorf("unsupported database type for schema inference: %s", dbType)
+		logger.Warn("Unknown database type, defaulting to MySQL schema inference",
+			zap.String("database_type", dbType))
+		inferrer = schemaInferrers["mysql"]
 	}
 
 	return inferrer(db, query, logger)
