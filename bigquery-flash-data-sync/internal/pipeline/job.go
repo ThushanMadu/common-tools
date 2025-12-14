@@ -118,7 +118,7 @@ func Start(ctx context.Context, cfg *model.Config, logger *zap.Logger) error {
 					mu.Lock()
 					summary.FailedSyncs++
 					mu.Unlock()
-					return result.Error
+					return fmt.Errorf("failed sync at %s.%s: %w", db.Name, tbl.Name, result.Error)
 				}
 
 				mu.Lock()

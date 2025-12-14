@@ -291,7 +291,7 @@ func createOrUpdateTable(ctx context.Context, client *bigquery.Client, datasetID
 					zap.String("table", table.Name),
 					zap.Error(updateErr))
 
-				logger.Warn("WARNING: Recreating table will DELETE ALL EXISTING DATA",
+				logger.Warn("Recreating table will delete all existing data",
 					zap.String("table", table.Name))
 
 				// Delete existing table
