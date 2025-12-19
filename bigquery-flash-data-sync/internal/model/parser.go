@@ -1,110 +1,118 @@
-// Copyright (c) 2025 WSO2 LLC.  (https://www.wso2.com).
-//
-// WSO2 LLC.  licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-
-// Package model provides data parsing utilities for converting SQL rows to saveable formats.
 package model
 
 import (
-    "database/sql"
-    "fmt"
-    "strings"
-    "time"
-    "unicode/utf8"
+	"database/sql"
+	"fmt"
+	"math"
+	"strings"
+	"time"
+	"unicode/utf8"
 
-    "go.uber.org/zap"
+	"go.uber.org/zap"
 )
 
 // ParseDynamicRow scans a sql.Rows result into a DynamicRow structure.
 // It handles various SQL types and converts them appropriately for BigQuery.
 func ParseDynamicRow(rows *sql.Rows, logger *zap.Logger, dateFormat string) (*DynamicRow, error) {
-    columns, err := rows.Columns()
-    if err != nil {
-        return nil, fmt.Errorf("failed to get columns: %w", err)
-    }
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get columns: %w", err)
+	}
 
-    values := make([]any, len(columns))
-    valuePtrs := make([]any, len(columns))
-    for i := range values {
-        valuePtrs[i] = &values[i]
-    }
+	values := make([]any, len(columns))
+	valuePtrs := make([]any, len(columns))
+	for i := range values {
+		valuePtrs[i] = &values[i]
+	}
 
-    if err := rows.Scan(valuePtrs...); err != nil {
-        return nil, fmt.Errorf("failed to scan row: %w", err)
-    }
+	if err := rows.Scan(valuePtrs...); err != nil {
+		return nil, fmt.Errorf("failed to scan row: %w", err)
+	}
 
-    for i, val := range values {
-        values[i] = convertValue(val, dateFormat, logger)
-    }
+	for i, val := range values {
+		values[i] = convertValue(val, dateFormat, logger)
+	}
 
-    return &DynamicRow{
-        ColumnNames: columns,
-        Values:      values,
-    }, nil
+	return &DynamicRow{
+		ColumnNames: columns,
+		Values:      values,
+	}, nil
 }
 
 func sanitizeInvalidUTF8(logger *zap.Logger, s string, originalLen int) string {
-    logger.Debug("Invalid UTF-8 detected, sanitizing",
-        zap.Int("original_length", originalLen),
-    )
-    return strings.ToValidUTF8(s, "")
+	logger.Debug("Invalid UTF-8 detected, sanitizing",
+		zap.Int("original_length", originalLen),
+	)
+	return strings.ToValidUTF8(s, "")
 }
 
 // convertValue converts SQL values to appropriate Go types for BigQuery.
-// It sanitizes invalid UTF-8 sequences in byte slices to prevent BigQuery JSON upload failures.
+// It sanitizes invalid UTF-8 sequences and handles Unsigned Integer overflow.
 func convertValue(val any, dateFormat string, logger *zap.Logger) any {
-    if val == nil {
-        return nil
-    }
+	if val == nil {
+		return nil
+	}
 
-    switch v := val.(type) {
-    case []byte:
-        if !utf8.Valid(v) {
-            return sanitizeInvalidUTF8(logger, string(v), len(v))
-        }
-        return string(v)
+	switch v := val.(type) {
+	case []byte:
+		if !utf8.Valid(v) {
+			return sanitizeInvalidUTF8(logger, string(v), len(v))
+		}
+		return string(v)
 
-    case time.Time:
-        if v.IsZero() {
-            return nil
-        }
+	case time.Time:
+		return formatTimeForBigQuery(v, dateFormat)
 
-        // Heuristic:
-        // - If it's a "date-only" value (midnight), format using dateFormat (e.g., 2006-01-02)
-        // - Otherwise, return a RFC3339Nano timestamp string (BigQuery-friendly for TIMESTAMP/DATETIME)
-        if v.Hour() == 0 && v.Minute() == 0 && v.Second() == 0 && v.Nanosecond() == 0 && dateFormat != "" {
-            return v.Format(dateFormat)
-        }
-        return v.UTC().Format(time.RFC3339Nano)
+	case int64, int32, int16, int8, int:
+		return v
 
-    case int64, int32, int16, int8, int:
-        return v
-    case uint64, uint32, uint16, uint8, uint:
-        return v
-    case float64, float32:
-        return v
-    case bool:
-        return v
-    case string:
-        if !utf8.ValidString(v) {
-            return sanitizeInvalidUTF8(logger, v, len(v))
-        }
-        return v
-    default:
-        logger.Debug("Converting unknown type to string",
-            zap.String("type", fmt.Sprintf("%T", v)))
-        return fmt.Sprintf("%v", v)
-    }
+	case uint64:
+		return safeUintToBigQuery(v, logger)
+	case uint:
+		return safeUintToBigQuery(uint64(v), logger)
+	case uint32:
+		return int64(v)
+	case uint16:
+		return int64(v)
+	case uint8:
+		return int64(v)
+
+	case float64, float32:
+		return v
+	case bool:
+		return v
+	case string:
+		if !utf8.ValidString(v) {
+			return sanitizeInvalidUTF8(logger, v, len(v))
+		}
+		return v
+	default:
+		logger.Debug("Converting unknown type to string",
+			zap.String("type", fmt.Sprintf("%T", v)))
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+// formatTimeForBigQuery handles time serialization logic.
+// It detects "date-only" values (midnight) and formats them strictly if a dateFormat is provided.
+// Otherwise, it returns an RFC3339Nano timestamp.
+func formatTimeForBigQuery(v time.Time, dateFormat string) any {
+	if v.IsZero() {
+		return nil
+	}
+	if v.Hour() == 0 && v.Minute() == 0 && v.Second() == 0 && v.Nanosecond() == 0 && dateFormat != "" {
+		return v.Format(dateFormat)
+	}
+	return v.UTC().Format(time.RFC3339Nano)
+}
+
+// safeUintToBigQuery checks if a uint64 fits within BigQuery's INT64 (signed).
+// If it fits, it returns int64. If it overflows, it returns string to preserve the value.
+func safeUintToBigQuery(v uint64, logger *zap.Logger) any {
+	if v > math.MaxInt64 {
+		logger.Warn("uint value exceeds BigQuery INT64 max, converting to string",
+			zap.Uint64("value", v))
+		return fmt.Sprintf("%d", v)
+	}
+	return int64(v)
 }
