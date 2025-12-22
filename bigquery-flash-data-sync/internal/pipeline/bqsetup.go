@@ -343,3 +343,4 @@ func createOrUpdateTable(ctx context.Context, client *bigquery.Client, datasetID
 
 	return nil
 }
+

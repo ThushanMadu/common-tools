@@ -417,6 +417,7 @@ func bigQueryTableID(name string) (string, error) {
     if err != nil {
         return "", err
     }
+
     if !hasQ {
         // splitQualifiedName would have returned earlier; keep for safety.
         return "", fmt.Errorf("invalid BigQuery table id: %s", name)
@@ -426,6 +427,7 @@ func bigQueryTableID(name string) (string, error) {
     if !validSQLIdentifier.MatchString(mapped) {
         return "", fmt.Errorf("invalid BigQuery table id after mapping: %s", mapped)
     }
+    
     return mapped, nil
 }
 
@@ -577,6 +579,7 @@ func executeJob(ctx context.Context, bqClient *bigquery.Client, cfg *model.Confi
         logger.Info("No rows to load. Job finished.")
         return 0, nil
     }
+    
     return totalRowsExtracted, nil
 }
 
@@ -624,6 +627,7 @@ func formatBigQueryStatusErrors(status *bigquery.JobStatus) string {
             break
         }
     }
+    
     return b.String()
 }
 

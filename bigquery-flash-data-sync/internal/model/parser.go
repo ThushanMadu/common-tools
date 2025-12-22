@@ -59,13 +59,10 @@ func convertValue(val any, dateFormat string, logger *zap.Logger) any {
 			return sanitizeInvalidUTF8(logger, string(v), len(v))
 		}
 		return string(v)
-
 	case time.Time:
 		return formatTimeForBigQuery(v, dateFormat)
-
 	case int64, int32, int16, int8, int:
 		return v
-
 	case uint64:
 		return safeUintToBigQuery(v, logger)
 	case uint:
@@ -76,7 +73,6 @@ func convertValue(val any, dateFormat string, logger *zap.Logger) any {
 		return int64(v)
 	case uint8:
 		return int64(v)
-
 	case float64, float32:
 		return v
 	case bool:

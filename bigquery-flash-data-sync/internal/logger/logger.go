@@ -98,3 +98,4 @@ func getLogLevelFromEnv() zapcore.Level {
 func Sync() {
 	_ = Logger.Sync()
 }
+

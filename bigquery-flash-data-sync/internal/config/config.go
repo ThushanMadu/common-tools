@@ -338,3 +338,4 @@ func parseBool(value string) bool {
 	v := strings.ToLower(strings.TrimSpace(value))
 	return v == "true" || v == "1" || v == "yes"
 }
+

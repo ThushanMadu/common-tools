@@ -244,3 +244,4 @@ func (c *Config) CountEnabledTables() int {
 	}
 	return count
 }
+
