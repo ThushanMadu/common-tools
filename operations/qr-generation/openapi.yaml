@@ -75,7 +75,7 @@ paths:
           schema:
             type: integer
             default: 256
-            minimum: 64
+            minimum: 1
             maximum: 2048
           example: 512
       requestBody:
@@ -334,9 +334,10 @@ x-qr-specifications: |
   - Good balance between size and error correction
 
   ## Size Limits
-  - Minimum: 64x64 pixels
+  - Minimum: 1x1 pixel
   - Maximum: 2048x2048 pixels
   - Default: 256x256 pixels
+  - Recommended: 256-512 pixels for most use cases
 
   ## Data Capacity (approximate for Medium error correction)
   - Numeric only: ~7,000 characters
