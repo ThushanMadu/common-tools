@@ -136,7 +136,7 @@ POST /generate?size={pixels}
 ```
 
 **Query Parameters:**
-- `size` (optional): QR code size in pixels (default: 256)
+- `size` (optional): QR code size in pixels (64-2048, default: 256)
 
 **Request Body:**
 - Raw text or URL to encode

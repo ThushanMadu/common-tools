@@ -51,13 +51,13 @@ func (s *service) Generate(data []byte, size int) ([]byte, error) {
 		return nil, fmt.Errorf("data cannot be empty")
 	}
 
-	if size <= 0 || size > 2048 {
+	if size < 64 || size > 2048 {
 		s.logger.Warn("QR code generation failed: invalid size",
 			"size", size,
-			"min", 1,
+			"min", 64,
 			"max", 2048,
 		)
-		return nil, fmt.Errorf("invalid size: must be between 1 and 2048")
+		return nil, fmt.Errorf("invalid size: must be between 64 and 2048")
 	}
 
 	s.logger.Debug("Encoding QR code",
