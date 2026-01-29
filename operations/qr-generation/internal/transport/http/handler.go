@@ -20,6 +20,7 @@ package http
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -32,14 +33,18 @@ type Handler struct {
 	svc         qr.Service
 	logger      *slog.Logger
 	maxBodySize int64
+	minSize     int
+	maxSize     int
 }
 
 // NewHandler creates a new HTTP handler for QR code generation.
-func NewHandler(svc qr.Service, logger *slog.Logger, maxBodySize int64) *Handler {
+func NewHandler(svc qr.Service, logger *slog.Logger, maxBodySize int64, minSize, maxSize int) *Handler {
 	return &Handler{
 		svc:         svc,
 		logger:      logger,
 		maxBodySize: maxBodySize,
+		minSize:     minSize,
+		maxSize:     maxSize,
 	}
 }
 
@@ -93,8 +98,6 @@ func (h *Handler) Generate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	const maxSize = 2048
-	const minSize = 64
 	const defaultSize = 256
 	size := defaultSize
 	sizeStr := r.URL.Query().Get("size")
@@ -102,15 +105,15 @@ func (h *Handler) Generate(w http.ResponseWriter, r *http.Request) {
 	if sizeStr != "" {
 		h.logger.Debug("Parsing size parameter", "size_str", sizeStr)
 		parsedSize, err := strconv.Atoi(sizeStr)
-		if err != nil || parsedSize < minSize || parsedSize > maxSize {
+		if err != nil || parsedSize < h.minSize || parsedSize > h.maxSize {
 			h.logger.Warn("Invalid size parameter",
 				"size_str", sizeStr,
 				"error", err,
-				"min", minSize,
-				"max", maxSize,
+				"min", h.minSize,
+				"max", h.maxSize,
 				"remote_addr", r.RemoteAddr,
 			)
-			http.Error(w, "Invalid size parameter: must be between 64 and 2048", http.StatusBadRequest)
+			http.Error(w, fmt.Sprintf("Invalid size parameter: must be between %d and %d", h.minSize, h.maxSize), http.StatusBadRequest)
 			return
 		}
 		size = parsedSize

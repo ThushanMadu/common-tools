@@ -62,6 +62,8 @@ Configure the service using environment variables. Copy `.env.example` to `.env`
 | `WRITE_TIMEOUT` | 10s | HTTP write timeout (Go duration format) |
 | `SHUTDOWN_TIMEOUT` | 5s | Graceful shutdown timeout (Go duration format) |
 | `MAX_BODY_SIZE` | 1048576 | Max request body size in bytes (1MB) |
+| `MIN_SIZE` | 64 | Minimum QR code size in pixels |
+| `MAX_SIZE` | 2048 | Maximum QR code size in pixels |
 | `LOG_LEVEL` | info | Logging level: `debug`, `info`, `warn`, `error` |
 | `LOG_ENV` | dev | Log format: `dev` (text) or `prod` (JSON) |
 

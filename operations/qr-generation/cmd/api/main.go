@@ -44,10 +44,10 @@ func main() {
 		"max_body_size", cfg.MaxBodySize,
 	)
 
-	svc := qr.NewService(logger.Logger)
+	svc := qr.NewService(logger.Logger, cfg.MinSize, cfg.MaxSize)
 	logger.Logger.Debug("QR service initialized")
 
-	h := transport.NewHandler(svc, logger.Logger, cfg.MaxBodySize)
+	h := transport.NewHandler(svc, logger.Logger, cfg.MaxBodySize, cfg.MinSize, cfg.MaxSize)
 	logger.Logger.Debug("HTTP handler initialized", "max_body_size", cfg.MaxBodySize)
 
 	mux := http.NewServeMux()

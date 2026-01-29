@@ -29,13 +29,17 @@ type Service interface {
 }
 
 type service struct {
-	logger *slog.Logger
+	logger  *slog.Logger
+	minSize int
+	maxSize int
 }
 
 // NewService creates a new QR code generation service instance.
-func NewService(logger *slog.Logger) Service {
+func NewService(logger *slog.Logger, minSize, maxSize int) Service {
 	return &service{
-		logger: logger,
+		logger:  logger,
+		minSize: minSize,
+		maxSize: maxSize,
 	}
 }
 
@@ -51,13 +55,13 @@ func (s *service) Generate(data []byte, size int) ([]byte, error) {
 		return nil, fmt.Errorf("data cannot be empty")
 	}
 
-	if size < 64 || size > 2048 {
+	if size < s.minSize || size > s.maxSize {
 		s.logger.Warn("QR code generation failed: invalid size",
 			"size", size,
-			"min", 64,
-			"max", 2048,
+			"min", s.minSize,
+			"max", s.maxSize,
 		)
-		return nil, fmt.Errorf("invalid size: must be between 64 and 2048")
+		return nil, fmt.Errorf("invalid size: must be between %d and %d", s.minSize, s.maxSize)
 	}
 
 	s.logger.Debug("Encoding QR code",

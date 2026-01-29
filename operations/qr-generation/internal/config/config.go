@@ -31,6 +31,8 @@ type Config struct {
 	WriteTimeout    time.Duration
 	ShutdownTimeout time.Duration
 	MaxBodySize     int64
+	MinSize         int
+	MaxSize         int
 }
 
 // LoadConfig reads configuration from environment variables and returns a Config instance.
@@ -41,6 +43,8 @@ func LoadConfig() *Config {
 		WriteTimeout:    getEnvDuration("WRITE_TIMEOUT", 10*time.Second),
 		ShutdownTimeout: getEnvDuration("SHUTDOWN_TIMEOUT", 5*time.Second),
 		MaxBodySize:     getEnvInt64("MAX_BODY_SIZE", 1024*1024),
+		MinSize:         getEnvInt("MIN_SIZE", 64),
+		MaxSize:         getEnvInt("MAX_SIZE", 2048),
 	}
 }
 
@@ -57,6 +61,18 @@ func getEnvDuration(key string, fallback time.Duration) time.Duration {
 	if value, exists := os.LookupEnv(key); exists {
 		if d, err := time.ParseDuration(value); err == nil {
 			return d
+		}
+	}
+	return fallback
+}
+
+// getEnvInt retrieves an int environment variable or returns fallback (only accepts positive values).
+func getEnvInt(key string, fallback int) int {
+	if value, exists := os.LookupEnv(key); exists {
+		if i, err := strconv.Atoi(value); err == nil {
+			if i > 0 {
+				return i
+			}
 		}
 	}
 	return fallback
