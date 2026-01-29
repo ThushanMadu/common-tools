@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// Package config provides configuration management for the QR generation service.
+// It loads configuration from environment variables with sensible defaults.
 package config
 
 import (
@@ -22,6 +24,7 @@ import (
 	"time"
 )
 
+// Config holds application configuration loaded from environment variables.
 type Config struct {
 	Port            string
 	ReadTimeout     time.Duration
@@ -30,6 +33,7 @@ type Config struct {
 	MaxBodySize     int64
 }
 
+// LoadConfig reads configuration from environment variables and returns a Config instance.
 func LoadConfig() *Config {
 	return &Config{
 		Port:            getEnv("PORT", "8080"),
@@ -40,6 +44,7 @@ func LoadConfig() *Config {
 	}
 }
 
+// getEnv retrieves a string environment variable or returns fallback if not set.
 func getEnv(key, fallback string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
@@ -47,6 +52,7 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
+// getEnvDuration retrieves a duration environment variable or returns fallback.
 func getEnvDuration(key string, fallback time.Duration) time.Duration {
 	if value, exists := os.LookupEnv(key); exists {
 		if d, err := time.ParseDuration(value); err == nil {
@@ -56,6 +62,7 @@ func getEnvDuration(key string, fallback time.Duration) time.Duration {
 	return fallback
 }
 
+// getEnvInt64 retrieves an int64 environment variable or returns fallback (only accepts positive values).
 func getEnvInt64(key string, fallback int64) int64 {
 	if value, exists := os.LookupEnv(key); exists {
 		if i, err := strconv.ParseInt(value, 10, 64); err == nil {
