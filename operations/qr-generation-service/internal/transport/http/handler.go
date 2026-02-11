@@ -191,7 +191,6 @@ func (h *Handler) Generate(w http.ResponseWriter, r *http.Request) {
 }
 
 // HealthCheck handles GET /health requests for liveness/readiness probes.
-// Note: Method checking should be handled by middleware to stay consistent with the OpenAPI spec.
 func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	h.logger.Debug("Health check request received",
 		"method", r.Method,
