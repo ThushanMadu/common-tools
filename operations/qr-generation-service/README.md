@@ -18,7 +18,7 @@ A simple HTTP service for generating QR codes built with Go.
 
 ```bash
 # Clone the repository
-cd operations/qr-generation
+cd operations/qr-generation-service
 
 # Install dependencies
 go mod tidy

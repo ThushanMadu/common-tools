@@ -190,7 +190,7 @@ func (h *Handler) Generate(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-// HealthCheck handles GET/POST /health requests for liveness/readiness probes.
+// HealthCheck handles GET /health requests for liveness/readiness probes.
 func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	h.logger.Debug("Health check request received",
 		"method", r.Method,
